@@ -1,22 +1,47 @@
 pico-8 cartridge // http://www.pico-8.com
 version 18
 __lua__
-x=8
-y=98
-spriteflip = false
+function _init()
+	x=8
+	y=98
+	spriteflip = false
+	
+	playerwalk = false
+	walkloop = false
+	
+	playerjump = false
+	
+	imagenmb = 0
+	imagespd = 5
+	clock = 0
+	clockframe = clock + imagespd
+	
+	mapx = 0
+end
 
-playerwalk = false
-walkloop = false
-
-imagenmb = 0
-imagespd = 5
-clock = 0
-clockframe = clock + imagespd
-
-mapx = 0
+function _anim(timer,timerobj,framespd,frameamnt,spriteframe) 
+	if (timer==30) then
+		timer = 0
+	else timer += 1 end
+	
+	if (timer>=30 or timer==timerobj) then
+		timerobj = timer + framespd
+	end
+	
+	if (timer==timerobj) then
+		if (spriteframe<frameamnt) then
+			spriteframe += 1
+			
+		else spriteframe = 0 end
+	end
+	
+	printh("timer:")
+	printh(timer)
+	printh("timerobj:")
+	printh(timerobj)
+end
 
 function _update()
-
 	mapx -= 0.5
 
 	if (clock>=30) then
@@ -25,19 +50,34 @@ function _update()
 	
 	else clock += 1 end
 	
-if (clock==clockframe) then
-	if (playerwalk==true) then
+-- plays walk/jump anims
+
+	_anim(clock,clockframe,5,2,imagenmb)
+
+--[[if (clock==clockframe) then
+	if (playerwalk==true and playerjump==false) then
 			
 		if (imagenmb<2) then
 			imagenmb += 1
 				
 		else imagenmb = 1 end
 	
-	else imagenmb = 0 end
-		
+	elseif (playerwalk==false) then 
+		imagenmb = 0
+	
+	elseif (playerjump==true) then
+		y += 1
+		imagenmb = 4
+	end
+	
 	clockframe = clock + imagespd
-end
+end--]]
 
+	-- assigns commands to buttons
+	if (btn(2)) then 
+		playerjump = true 
+	end
+	
 	if (btn(0) or btn(1)) then
 		spriteflip = true
 		playerwalk = true
@@ -56,18 +96,19 @@ end
 
 function _draw()
 	cls(12)
+	
+	-- draws looping clouds
 	map(0,5,mapx,98,16,2)
 	map(0,5,mapx+128,98,16,2)
-	
-	if (mapx<=-127) then
-		mapx = 0
-	end
+	if (mapx<=-127) then mapx = 0 end
 
+	-- draws floor in a loop
 	for f=0,15,1 do
 		spr(32,8*f,114)
 		spr(33,8*f,122)
 	end 
 	
+	-- draws player sprite
 	sspr(0+(16*imagenmb),0,16,16,x,y,16,16,spriteflip) 
 end
 __gfx__
@@ -84,9 +125,9 @@ __gfx__
 000662333bb00000000672333bb00000000672333bb000000006333bbbbb0000000172b8888b0000000000000000000000000000000000000000000000000000
 000162888880000000017288888b0000001172b8888000000001223333b000000011228888880000000000000000000000000000000000000000000000000000
 001122b8888b00000011228888880000011122888888000000112222222800000011222888880000000000000000000000000000000000000000000000000000
-0011222888880000011122b88833000000113328888b0000001122b2888b00000111122288830000000000000000000000000000000000000000000000000000
+0011222888880000011122b88833000000113328888b0000001122b2888b00000111133288330000000000000000000000000000000000000000000000000000
 01111222888000000001322288330000000133228880000001111222288000000111133111330000000000000000000000000000000000000000000000000000
-01111331133000000000330000000000000000003300000001111331133000000000033000330000000000000000000000000000000000000000000000000000
+01111331133000000000330000000000000000003300000001111331133000000000000000000000000000000000000000000000000000000000000000000000
 33333b33444444440000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 3b333333442442440000000000000007777700000077770000000000000000000000000000000000000000000000000000000000000000000000000000000000
 22222222444444440000000077700077777777777777777000000000000000000000000000000000000000000000000000000000000000000000000000000000
