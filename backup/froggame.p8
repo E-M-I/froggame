@@ -1,7 +1,7 @@
 pico-8 cartridge // http://www.pico-8.com
 version 18
 __lua__
---function _init()
+function _init()
 	x=8
 	y=98
 	spriteflip = false
@@ -11,68 +11,41 @@ __lua__
 	
 	playerjump = false
 	
-	imagenmb = 0
-	imagespd = 5
-	clock = 0
-	clockframe = clock + imagespd
+	clock = 30
+	clockframe = 0
 	
 	mapx = 0
-	printh("dou")
---end
+end
 
-function _anim(timer,timerobj,framespd,frameamnt,spriteframe) 
-	if (timer==30) then
-		timer = 0
-	else timer += 1 end
+function _anim(timer,timerobj,framespd,frameamnt,spriteframe) 	
+		if (timer==30) then
+			timer = 0
+			timerobj = timer + framespd
+		else timer += 1 end
 	
-	if (timer>=30 or timer==timerobj) then
-		timerobj = timer + framespd
-	end
-	
-	if (timer==timerobj) then
-		if (spriteframe<frameamnt) then
+		if (timer>=30 or timer==timerobj) then
 			spriteframe += 1
-			
-		else spriteframe = 0 end
-	end
-	
-	--[[printh("timer:")
-	printh(timer)
-	printh("timerobj:")
-	printh(timerobj)]]--
+			if (spriteframe>frameamnt) then
+				spriteframe = 1
+			end
+			timerobj = timer + framespd
+		end
+		
+		clock = timer
+		clockframe = timerobj
+		imagenmb = spriteframe
 end
 
 function _update()
 	mapx -= 0.5
-
-	if (clock>=30) then
-		clock = 0
-		clockframe = clock + imagespd
 	
-	else clock += 1 end
-	
--- plays walk/jump anims
-
-	_anim(clock,clockframe,5,2,imagenmb)
-
---[[if (clock==clockframe) then
+	-- plays walk/jump anims
 	if (playerwalk==true and playerjump==false) then
-			
-		if (imagenmb<2) then
-			imagenmb += 1
-				
-		else imagenmb = 1 end
+		_anim(clock,clockframe,5,2,imagenmb)	
 	
-	elseif (playerwalk==false) then 
+	elseif(playerwalk==false) then
 		imagenmb = 0
-	
-	elseif (playerjump==true) then
-		y += 1
-		imagenmb = 4
 	end
-	
-	clockframe = clock + imagespd
-end--]]
 
 	-- assigns commands to buttons
 	if (btn(2)) then 
