@@ -4,6 +4,8 @@ __lua__
 function _init()
 	x=8
 	y=98
+	xspd = 0
+	yspd = 0
 	yprev = -50
 	spriteflip = false
 	
@@ -15,6 +17,10 @@ function _init()
 	playerjump = false
 	playerair = false
 	playerdrop = false
+	
+	jumpforce = 3.5
+	gravityforce = 2
+	jumpclock = 0
 	
 	clock = 30
 	clockframe = 0
@@ -56,7 +62,7 @@ function _update()
 	
 	elseif(playerwalk==false) then imagenmb = 0 end
 	
-	if (playercrouch==true) then
+	--[[if (playercrouch==true) then
 		imagenmb = 3
 		statetimer = _state(statetimer)
 		if (statetimer>=5) then
@@ -64,28 +70,19 @@ function _update()
 			playercrouch = false
 			statetimer = 0
 		end
-	end
+	end]]--
 	
-	if (playerjump==true) then
-		y -= 2
-		imagenmb = 4
-			if (y<=85) then 
-				playerair = true
-				playerjump = false
+	if (playercrouch==true) then
+		y-= jumpforce - gravityforce
+		jumpforce-=0.05
+		printh(jumpforce)
+		if (jumpforce<gravityforce) then imagenmb = 5
+		elseif (jumpforce>gravityforce) then imagenmb = 4 end
+		if (y >=yprev) then
+				jumpforce = 3.5
+				jumpclock = 0
+				playercrouch = false
 			end
-		
-	elseif (playerair==true) then
-		y -= 0.2
-		imagenmb = 4
-			if (y<=83.1) then
-				playerdrop = true
-				playerair = false
-			end
-	
-	elseif (playerdrop==true) then
-		y += 1
-		imagenmb = 5
-		if (y>=yprev) then playerdrop = false end
 	end
 
 	-- assigns commands to buttons
@@ -94,20 +91,27 @@ function _update()
 		if(yprev==-50) then yprev = y end
 	end
 	
+	x += xspd
 	if (btn(0) or btn(1)) then
 		spriteflip = true
 		playerwalk = true
 		walkloop = true
 		if (btn(0)) then 
-			x -= 1 
+			if(xspd>-1) then xspd -= 0.1 end
+			x += xspd
 			spriteflip = true
 		end
 		if (btn(1)) then 
-			x += 1
+			if(xspd<1) then xspd += 0.1 end
+			x += xspd
 			spriteflip = false
-	 end
+		end
 	
-	else playerwalk = false end
+	else 
+		if (xspd>0) then xspd -= 0.1 end
+		if (xspd<0) then xspd += 0.1 end
+		playerwalk = false 
+	end
 end  
 
 function _draw()
@@ -159,7 +163,7 @@ __gfx__
 77777777cccccccc666666666666666666666666666666660011222222280000007777777777000000112b888855000000112b88888b57770000000000000000
 77777777cccccccc6666666666666666666666666666666600112222888b00000077777777770000001122288888000000112228888805000000000000000000
 07777777cccccccc6666666666666666666666666666666601111222288000000777777777700000011132228883300001113222888330000000000000000000
-00777770cccccccc6666666666666666666666666666666611111331133000007777777117700000011133111103300001113311110330000000000000000000
+00777770cccccccc6666666666666666666666666666666611111331133000007777777777700000011133111103300001113311110330000000000000000000
 00000000cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc000000000000000000000000000000000000000000000000
 00000000cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc000000000000000000000000000000000000000000000000
 00000000cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc000000000000000000000000000000000000000000000000
